@@ -13,6 +13,7 @@ ADD entrypoint.py /entrypoint.py
 
 VOLUME /acme/config/
 VOLUME /acme/crt/
+VOLUME /acme/acme_challenge/
 
 WORKDIR /acme/
 

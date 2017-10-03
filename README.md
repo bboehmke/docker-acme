@@ -15,13 +15,15 @@ domains=a.domain.de,b.domain.de,domain.com
 domains=a.domain.de,b.domain.de,domain.com
 ```
 
-Note if no account.key exist in `/srv/acme_config/` a new one is created.
+Note: if no account.key exist in `/srv/acme_config/` a new one is created.
+
 
 Start the acme client:
 ```
 docker run --rm \
     -v /srv/acme_config/:/acme/config/ \
     -v /srv/nginx/crt/:/acme/crt/ \
+    -v /srv/nginx/www/.well-known/acme-challenge/:/acme/acme_challenge/ \
     bboehmke/docker-acme
 ```
 
@@ -34,6 +36,7 @@ docker run --rm \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v /srv/acme_config/:/acme/config/ \
     -v /srv/nginx/crt/:/acme/crt/ \
+    -v /srv/nginx/www/.well-known/acme-challenge/:/acme/acme_challenge/ \
     -e CONTAINER_NOTIFY=nginx \
     bboehmke/docker-acme
 ```
