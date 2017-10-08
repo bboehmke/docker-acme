@@ -16,6 +16,7 @@ RUN apk add --no-cache openssl wget supervisor && \
 
 ADD https://raw.githubusercontent.com/diafygi/acme-tiny/master/acme_tiny.py /acme_tiny.py
 ADD app.py /app.py
+ADD crt_domains.ini.tmpl /crt_domains.ini.tmpl
 COPY supervisor/ /etc/supervisor.d/
 
 VOLUME /acme/config/
