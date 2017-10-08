@@ -20,8 +20,8 @@ logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler())
 logger.setLevel(logging.INFO)
 
-DEFAULT_CA = "https://acme-staging.api.letsencrypt.org"
-#DEFAULT_CA = "https://acme-v01.api.letsencrypt.org"
+#DEFAULT_CA = "https://acme-staging.api.letsencrypt.org"
+DEFAULT_CA = "https://acme-v01.api.letsencrypt.org"
 
 crt_max_age = os.getenv("CRT_MAX_AGE", 30)  # in days
 chained_crt = os.getenv("CHAINED_CRT", "true")
