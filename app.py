@@ -30,6 +30,7 @@ acme_intermediate = os.getenv(
     "ACME_INTERMEDIATE",
     "https://letsencrypt.org/certs/lets-encrypt-x3-cross-signed.pem")
 container_notify = os.getenv("CONTAINER_NOTIFY")
+dh_max_age = os.getenv("DH_MAX_AGE")
 
 
 def check_crt(name, domains):
@@ -172,6 +173,29 @@ def notify_container():
         out, err = proc.communicate()
         if proc.returncode != 0:
             logger.error("Docker Error: {0}".format(err))
+
+
+def update_dhparam():
+    if not dh_max_age:
+        return
+
+    crt_file = "%s/dhparam.pem" % crt_dir
+
+    if os.path.isfile(crt_file) and \
+       (datetime.now()-datetime.fromtimestamp(os.path.getmtime(crt_file))).days < dh_max_age:
+        return
+
+    proc = subprocess.Popen(
+        ["openssl", "dhparam",
+         "-out", crt_file,
+         "2048"],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE)
+
+    out, err = proc.communicate()
+    if proc.returncode != 0:
+        raise IOError("OpenSSL Error: {0}".format(err))
 
 
 os.makedirs(crt_dir, exist_ok=True)

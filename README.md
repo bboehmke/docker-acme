@@ -46,6 +46,12 @@ Set the variable `CONTAINER_NOTIFY` to a list of container names that should be
 notified if the certificates changed.
 
 
+### Diffie-Hellman Groups
+
+If `DH_MAX_AGE` is set a file `dhparam.pem` is generated and recreated in 
+`/acme/crt/`.
+
+
 Available Configuration Parameters
 ----------------------------------
 
@@ -54,3 +60,4 @@ Available Configuration Parameters
 - **CHAINED_CRT**: If true add intermediate certificate to *.crt (Default: true)
 - **CONTAINER_NOTIFY**: Names of container for notification (`,` separated for multiple container)
 - **CRT_MAX_AGE**: Max age of certificate before renew in days (Default: 30)
+- **DH_MAX_AGE**: Max age of Diffie-Hellman param file before renew in days (Default: off)
