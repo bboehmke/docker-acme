@@ -1,0 +1,9 @@
+{{ range $auto_crt, $containers2 := groupBy $ "Env.AUTO_CERT" }}
+ {{ if eq (trim $auto_crt) "true" }}
+  {{ range $crt_name, $crt_containers := groupBy $containers2 "Env.CERT_NAME" }}
+[{{ $crt_name }}]
+domains={{ range $hosts, $crt_containers2 := groupBy $crt_containers "Env.VIRTUAL_HOST" }}{{ trim $hosts }},{{ end }}
+  {{ end }}
+ {{ end }}
+{{ end }}
+
