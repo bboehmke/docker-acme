@@ -42,6 +42,7 @@ services:
       - ./data/acme_config/:/acme/config/
       - ./data/acme_challenge/:/acme/acme_challenge/
     environment:
+      - DH_MAX_AGE=30
       - CONTAINER_NOTIFY=nginx,docker_gen
       - CERT_whoami2=domain.de,domain2.de
 

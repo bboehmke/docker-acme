@@ -76,7 +76,7 @@ def check_crt(name, domains):
     start_time = datetime.strptime(out.decode("utf8").strip().split("=")[1],
                                    "%b %d %H:%M:%S %Y %Z")
 
-    return (datetime.now()-start_time).days < crt_max_age
+    return (datetime.now()-start_time).days < int(crt_max_age)
 
 
 def exist_key(name):
@@ -179,17 +179,17 @@ def update_dhparam():
     if not dh_max_age:
         return
 
-    crt_file = "%s/dhparam.pem" % crt_dir
+    dh_param_file = "%s/dhparam.pem" % crt_dir
 
-    if os.path.isfile(crt_file) and \
-       (datetime.now()-datetime.fromtimestamp(os.path.getmtime(crt_file))).days < dh_max_age:
+    if os.path.isfile(dh_param_file) and \
+       (datetime.now()-datetime.fromtimestamp(os.path.getmtime(dh_param_file))).days < int(dh_max_age):
         return
 
-    logger.info("DH param file")
+    logger.info("Create DH param file")
 
     proc = subprocess.Popen(
         ["openssl", "dhparam",
-         "-out", crt_file,
+         "-out", dh_param_file,
          "2048"],
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
