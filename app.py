@@ -148,7 +148,7 @@ def create_crt(name):
                             acme_ca)
 
     if chained_crt == "true":
-        signed_crt += urlopen(acme_intermediate).read()
+        signed_crt += urlopen(acme_intermediate).read().decode("utf8")
 
     with open("%s/%s.crt" % (crt_dir, name), "w") as file:
         file.write(signed_crt)
