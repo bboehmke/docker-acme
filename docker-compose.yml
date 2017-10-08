@@ -1,0 +1,66 @@
+version: "2.3"
+services:
+  # Optional IPv6 support
+  #ipv6nat:
+  #  image: robbertkl/ipv6nat
+  #  volumes:
+  #    - /var/run/docker.sock:/var/run/docker.sock:ro
+  #    - /lib/modules:/lib/modules:ro
+  #  privileged: true
+  #  network_mode: host
+  #  restart: always
+
+  nginx:
+    image: nginx
+    container_name: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /etc/nginx/conf.d
+      - ./data/certs/:/etc/nginx/certs/
+      - ./data/certs/:/etc/nginx/dhparam/:ro
+      - ./data/acme_challenge/:/srv/acme_challenge/
+#    environment:
+#      - ENABLE_IPV6=true
+
+  dockergen:
+    image: jwilder/docker-gen
+    container_name: docker_gen
+    command: -notify-sighup nginx -watch /etc/docker-gen/templates/nginx.tmpl /etc/nginx/conf.d/default.conf
+    volumes_from:
+      - nginx
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./nginx.tmpl:/etc/docker-gen/templates/nginx.tmpl:ro
+
+  docker_acme:
+    image: bboehmke/docker-acme
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./data/certs/:/acme/crt/
+      - ./data/acme_config/:/acme/config/
+      - ./data/acme_challenge/:/acme/acme_challenge/
+    environment:
+      - CONTAINER_NOTIFY=nginx,docker_gen
+      - CERT_whoami2=domain.de,domain2.de
+
+  whoami:
+    image: jwilder/whoami
+    environment:
+      - VIRTUAL_HOST=domainA.de,domainB.com
+      - CERT_NAME=whoami
+      - AUTO_CERT=true
+
+  whoami2:
+    image: jwilder/whoami
+    environment:
+      - VIRTUAL_HOST=bla.bbo.ovh
+      - CERT_NAME=domain.de
+
+# For IPv6:
+# network with docker network create --ipv6 --subnet=fd00:dead:beef::/48 docker_net
+#networks:
+#  default:
+#    external:
+#      name: docker_net

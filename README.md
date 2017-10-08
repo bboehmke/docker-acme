@@ -4,11 +4,14 @@ Docker ACME client
 Docker image based on [acme-tiny](https://github.com/diafygi/acme-tiny)
 and [docker-gen](https://github.com/jwilder/docker-gen).
 
-It is designed to use with [nginx-proxy](https://github.com/jwilder/nginx-proxy).
-
 
 Usage
 -----
+
+See `docker-compose.yml` for an usage example.
+
+The used `nginx.tmpl` is based on 
+[nginx-proxy](https://github.com/jwilder/nginx-proxy).
 
 ### Basic settings
 

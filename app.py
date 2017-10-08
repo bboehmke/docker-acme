@@ -185,6 +185,8 @@ def update_dhparam():
        (datetime.now()-datetime.fromtimestamp(os.path.getmtime(crt_file))).days < dh_max_age:
         return
 
+    logger.info("DH param file")
+
     proc = subprocess.Popen(
         ["openssl", "dhparam",
          "-out", crt_file,
@@ -219,6 +221,9 @@ if not os.path.isfile("config/account.key"):
 
 logger.info("Docker ACME started")
 while True:
+    # check dh param
+    update_dhparam()
+
     # get predefined certs from variables
     certs = {}
     for key, value in dict(os.environ).items():
