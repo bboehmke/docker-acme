@@ -179,27 +179,6 @@ os.makedirs(crt_bak_dir, exist_ok=True)
 os.makedirs(tmp_dir, exist_ok=True)
 os.makedirs(acme_challenge_dir, exist_ok=True)
 
-# get predefined certs from variables
-certs = {}
-for key, value in dict(os.environ).items():
-    key = key.lower()
-    if not key.startswith("cert_"):
-        continue
-
-    certs[key[5:]] = sorted(filter(len, set(value.split(","))))
-
-# get container configurations
-try:
-    config = configparser.ConfigParser()
-    config.read("%s/crt_domains.ini" % tmp_dir)
-
-    for crt in config.sections():
-        certs[crt] = sorted(filter(len, set(config[crt]["domains"].split(","))))
-
-except Exception:
-    pass
-
-
 if not os.path.isfile("config/account.key"):
     proc = subprocess.Popen(
         ["openssl", "genrsa", "4096"],
@@ -216,6 +195,27 @@ if not os.path.isfile("config/account.key"):
 
 logger.info("Docker ACME started")
 while True:
+    # get predefined certs from variables
+    certs = {}
+    for key, value in dict(os.environ).items():
+        key = key.lower()
+        if not key.startswith("cert_"):
+            continue
+
+        certs[key[5:]] = sorted(filter(len, set(value.split(","))))
+
+    # get container configurations
+    try:
+        config = configparser.ConfigParser()
+        config.read("%s/crt_domains.ini" % tmp_dir)
+
+        for crt in config.sections():
+            certs[crt] = sorted(
+                filter(len, set(config[crt]["domains"].split(","))))
+
+    except Exception:
+        pass
+
     changed = False
     for crt, domains in certs.items():
         try:
