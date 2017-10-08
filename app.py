@@ -218,22 +218,28 @@ logger.info("Docker ACME started")
 while True:
     changed = False
     for crt, domains in certs.items():
-        if check_crt(crt, domains):
-            logger.info("[%s] Certificate valid -> Skipping" % crt)
-            continue
+        try:
+            if check_crt(crt, domains):
+                logger.info("[%s] Certificate valid -> Skipping" % crt)
+                continue
 
-        # create key if not exist
-        if not exist_key(crt):
-            logger.info("[%s] Generate RSA private key" % crt)
-            create_key(crt)
+            # create key if not exist
+            if not exist_key(crt):
+                logger.info("[%s] Generate RSA private key" % crt)
+                create_key(crt)
 
-        # generate CSR
-        logger.info("[%s] Generate CSR" % crt)
-        create_csr(crt, domains)
+            # generate CSR
+            logger.info("[%s] Generate CSR" % crt)
+            create_csr(crt, domains)
 
-        # get certificate
-        create_crt(crt)
-        changed = True
+            # get certificate
+            create_crt(crt)
+            changed = True
+
+        except ValueError as e:
+            logger.error(e)
+        except IOError as e:
+            logger.error(e)
 
     # is a cert changed notify containers
     if changed:
