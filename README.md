@@ -40,6 +40,7 @@ a docker container.
 
 - **VIRTUAL_HOST**: List of domains
 - **CERT_NAME**: Name of certificate
+- **CERT_NOTIFY**: `true` to enable notification of the current container
 - **AUTO_CERT**: `true` to enable automatic generation
 
 

@@ -20,15 +20,13 @@ logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler())
 logger.setLevel(logging.INFO)
 
-#DEFAULT_CA = "https://acme-staging.api.letsencrypt.org"
+STAGING_CA = "https://acme-staging.api.letsencrypt.org"
 DEFAULT_CA = "https://acme-v01.api.letsencrypt.org"
 
 crt_max_age = os.getenv("CRT_MAX_AGE", 30)  # in days
 chained_crt = os.getenv("CHAINED_CRT", "true")
 acme_ca = os.getenv("ACME_CA", DEFAULT_CA)
-acme_intermediate = os.getenv(
-    "ACME_INTERMEDIATE",
-    "https://letsencrypt.org/certs/lets-encrypt-x3-cross-signed.pem")
+acme_intermediate = os.getenv("ACME_INTERMEDIATE", "https://letsencrypt.org/certs/lets-encrypt-x3-cross-signed.pem")
 container_notify = os.getenv("CONTAINER_NOTIFY")
 dh_max_age = os.getenv("DH_MAX_AGE")
 
@@ -155,11 +153,11 @@ def create_crt(name):
         file.write(signed_crt)
 
 
-def notify_container():
-    if not container_notify:
+def notify_container(container_list):
+    if not container_list:
         return
 
-    for container in container_notify.split(","):
+    for container in container_list.strip(',').split(","):
         logger.info("Send SIGHUP to " + container)
 
         proc = subprocess.Popen(
@@ -199,6 +197,7 @@ def update_dhparam():
     if proc.returncode != 0:
         raise IOError("OpenSSL Error: {0}".format(err))
 
+# Program Start
 
 os.makedirs(crt_dir, exist_ok=True)
 os.makedirs(crt_bak_dir, exist_ok=True)
@@ -224,8 +223,9 @@ while True:
     # check dh param
     update_dhparam()
 
-    # get predefined certs from variables
+    # get predefined certs and notifies from variables
     certs = {}
+    notifies = {}
     for key, value in dict(os.environ).items():
         key = key.lower()
         if not key.startswith("cert_"):
@@ -241,6 +241,7 @@ while True:
         for crt in config.sections():
             certs[crt] = sorted(
                 filter(len, set(config[crt]["domains"].split(","))))
+            notifies[crt] = config[crt]["notify"]
 
     except Exception:
         pass
@@ -272,7 +273,13 @@ while True:
 
     # is a cert changed notify containers
     if changed:
-        notify_container()
+        # Notify default containers
+        logger.info("[General] Notify containers")
+        notify_container(container_notify)
+        # Notify certificate based containers
+        for crt, containers in notifies.items():
+            logger.info("[%s] Notify containers" % crt)
+            notify_container(containers)
 
     # wait update every hour or if force_crt_update exist
     counter = 3600
