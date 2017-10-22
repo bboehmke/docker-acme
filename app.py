@@ -157,7 +157,7 @@ def notify_container(container_list):
     if not container_list:
         return
 
-    for container in container_list.split(","):
+    for container in container_list.strip(',').split(","):
         logger.info("Send SIGHUP to " + container)
 
         proc = subprocess.Popen(
@@ -241,9 +241,7 @@ while True:
         for crt in config.sections():
             certs[crt] = sorted(
                 filter(len, set(config[crt]["domains"].split(","))))
-            notifies[crt] = sorted(
-                filter(len, set(config[crt]["notify"].split(","))))
-
+            notifies[crt] = config[crt]["notify"]
 
     except Exception:
         pass
@@ -276,9 +274,12 @@ while True:
     # is a cert changed notify containers
     if changed:
         # Notify default containers
+        logger.info("[General] Notify containers")
         notify_container(container_notify)
         # Notify certificate based containers
-        notify_container(notifies[crt])
+        for crt, containers in notifies.items():
+            logger.info("[%s] Notify containers" % crt)
+            notify_container(containers)
 
     # wait update every hour or if force_crt_update exist
     counter = 3600
