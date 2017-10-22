@@ -3,7 +3,7 @@
   {{ range $crt_name, $crt_containers := groupBy $containers2 "Env.CERT_NAME" }}
 [{{ $crt_name }}]
 domains={{ range $hosts, $crt_containers2 := groupBy $crt_containers "Env.VIRTUAL_HOST" }}{{ trim $hosts }},{{ end }}
-notify={{ range $cnotify, $crt_containers2 := groupBy $crt_containers "Env.NOTIFY_CONTAINER" }}{{ if parseBool (trim $cnotify) }}{{range $crt_container := $crt_containers2 }}{{ trim $crt_container.Name }},{{ end }}{{ end }}{{ end }}
+notify={{ range $cnotify, $crt_containers2 := groupBy $crt_containers "Env.CERT_NOTIFY" }}{{ if parseBool (trim $cnotify) }}{{range $crt_container := $crt_containers2 }}{{ trim $crt_container.Name }},{{ end }}{{ end }}{{ end }}
   {{ end }}
  {{ end }}
 {{ end }}
